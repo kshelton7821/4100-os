@@ -1,6 +1,6 @@
 # Operating Systems 4100 HW2
 
-boot.asm is provided by Dr. Rogers
+boot1.asm is provided by Dr. Rogers
 
 kernel.c: Contains structs, functions, and main driver for OS
 
