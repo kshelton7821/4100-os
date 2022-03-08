@@ -1,4 +1,4 @@
-# Operating Systems 4100 HW2
+# Operating Systems 4100 Main Page
 
 boot1.asm is provided by Dr. Rogers
 
