@@ -253,17 +253,17 @@ void enqueue() {
     queue->q_total++;
 }
 */
-pcb_t *dequeue() {
-    if(queue.head == NULL) {
+pcb_t *dequeue(pcbq_t *q) {
+    if(q->head == NULL) {
         return NULL;
     }
     else {
-        Running = queue.head;
-        queue.head = (queue.head)->next;
-        if(queue.head == NULL) {
-            queue.tail = NULL;
+        Running = q->head;
+        q->head = (q->head)->next;
+        if(q->head == NULL) {
+            q->tail = NULL;
         }
-        queue.q_total--;
+        q->q_total--;
     }
     return Running;
 }
