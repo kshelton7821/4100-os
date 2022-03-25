@@ -81,6 +81,14 @@ void k_clearscr();
 void print_border(int start_row, int start_column, int end_row, int end_column);
 
 
+//PIC Processes
+void setup_PIC();
+void outportb(uint16_t port, uint8_t value);
+
+//Interrupt Timer Value Programmer
+void init_timer_dev(uint8_t value);
+
+
 //Process Creation Function Prototypes
 uint32_t* allocate_stack();
 pcb_t* allocatePCB();
@@ -121,6 +129,8 @@ void main() {
     k_clearscr();
     init_idt();
     initQue();
+    init_timer_dev(50);
+    setup_PIC();
     
     retval = create_process((uint32_t)p1);
     if(retval == 1) {
@@ -188,7 +198,7 @@ int create_process(uint32_t processEntry) {
     uint32_t* st = allocate_stack();
 
     st--;
-    *st = (uint32_t)0; //set 32-bit word pointed at by st to 0 (Eflags with interrupts disabled)
+    *st = (uint32_t)0x200; //set 32-bit word pointed at by st to 0 (Eflags with interrupts Enabled!)
     st--;
     *st = cs; //set 32-bit word pointed at by st to cs
     st--;
@@ -316,7 +326,6 @@ void p1() {
         k_print(p,length,5,0);
         k_print(numP,1,5,length+1);
         i = ((i+1) % 10); //Wanted to do 500 but cant figure it out 
-        asm("int $32");
     }
 }
 
@@ -331,7 +340,6 @@ void p2() {
         k_print(p,length,6,0);
         k_print(numP,1,6,length+1);
         i = ((i+1) % 10); //Wanted to do 500 but cant figure it out 
-        asm("int $32");
    } 
 }
 
@@ -346,7 +354,6 @@ void p3() {
         k_print(p,length,7,0);
         k_print(numP,1,7,length+1);
         i = ((i+1) % 10); //Wanted to do 500 but cant figure it out 
-        asm("int $32");
     } 
 }
 
@@ -361,7 +368,6 @@ void p4() {
         k_print(p,length,8,0);
         k_print(numP,1,8,length+1);
         i = ((i+1) % 10); //Wanted to do 500 but cant figure it out 
-        asm("int $32");
     } 
 }
 
@@ -376,6 +382,26 @@ void p5() {
         k_print(p,length,9,0);
         k_print(numP,1,9,length+1);
         i = ((i+1) % 10); //Wanted to do 500 but cant figure it out 
-        asm("int $32");
     } 
+}
+
+//PIC Setup
+void setup_PIC() {
+// set up cascading mode:
+    outportb(0x20, 0x11); // start 8259 master initialization
+    outportb(0xA0, 0x11); // start 8259 slave initialization
+    outportb(0x21, 0x20); // set master base interrupt vector (idt 32-38)
+    outportb(0xA1, 0x28); // set slave base interrupt vector (idt 39-45)
+    // Tell the master that he has a slave:
+    outportb(0x21, 0x04); // set cascade ...
+    outportb(0xA1, 0x02); // on IRQ2
+    // Enabled 8086 mode:
+    outportb(0x21, 0x01); // finish 8259 initialization
+    outportb(0xA1, 0x01);
+    // Reset the IRQ masks
+    outportb(0x21, 0x0);
+    outportb(0xA1, 0x0);
+    // Now, enable the clock IRQ only 
+    outportb(0x21, 0xfe); // Turn on the clock IRQ
+    outportb(0xA1, 0xff); // Turn off all others
 }
