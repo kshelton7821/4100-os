@@ -82,6 +82,7 @@ mov [eax], esp
 push eax
 push queue
 call enqueue
+push queue
 call dequeue
 mov esp, [eax]
 
@@ -94,6 +95,7 @@ iret
 
 go:
 ;dequeue pcb from queue and make it the running process
+push queue
 call dequeue
 ;set esp register to esp value in the current processes pcb
 mov esp, [eax]
